@@ -2,19 +2,20 @@ package main
 
 import (
 	"net/http"
+	"os"
 	"os/exec"
-	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/grandcat/zeroconf"
 )
 
 func ping(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
-	hostname, err := exec.Command("hostname").Output()
+	hostname, err := os.Hostname()
 	if err != nil {
 		ctx.Status(http.StatusInternalServerError)
 	}
-	ctx.JSON(http.StatusOK, gin.H{"hostname": strings.TrimSpace(string(hostname))})
+	ctx.JSON(http.StatusOK, gin.H{"hostname": hostname})
 }
 
 func shutdown(ctx *gin.Context) {
@@ -27,10 +28,17 @@ func shutdown(ctx *gin.Context) {
 }
 
 func main() {
-	engine := gin.Default()
+	// mDNS
+	server, err := zeroconf.Register("Wemo 3000 API", "_wemo3000._tcp", "local.", 42424, []string{"txtv=0", "lo=1", "la=2"}, nil)
+	if err != nil {
+		panic(err)
+	}
+	defer server.Shutdown()
 
-	// discover service / check if device is ON
+	// REST
+	engine := gin.Default()
 	engine.GET("/ping", ping)
 	engine.GET("/shutdown", shutdown)
 	engine.Run(":2333")
+	defer server.Shutdown()
 }
