@@ -26,6 +26,12 @@ public class MainActivity extends AppCompatActivity {
     private Head logic;
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        System.out.println("START");
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -48,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
         // init app logic
         logic = new Head();
-        logic.setup();
+        logic.setup(this);
     }
 
     @Override
