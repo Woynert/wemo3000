@@ -29,6 +29,8 @@ public class Head {
         Thread thread = new Thread(() -> {
             // ping peer
             RestClient.ping(peer);
+
+            System.out.println(peer.lastTimeActive);
         });
         thread.start();
     }

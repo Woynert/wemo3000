@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Date;
 
 public class RestClient {
     Peer peer;
@@ -28,10 +29,8 @@ public class RestClient {
                 reader.close();
 
                 JSONObject res = new JSONObject(response.toString());
-                String hostname = res.get("hostname").toString();
-                if (hostname != ""){
-                    peer.hostname = hostname;
-                }
+                peer.hostname = res.get("hostname").toString();
+                peer.lastTimeActive = new Date();
                 return true;
             }
         } catch (Exception e) {
