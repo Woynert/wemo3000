@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"os/exec"
@@ -8,6 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/grandcat/zeroconf"
 )
+
+const PORT = 2333
 
 func ping(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
@@ -29,7 +32,7 @@ func shutdown(ctx *gin.Context) {
 
 func main() {
 	// mDNS
-	server, err := zeroconf.Register("Wemo 3000 API", "_wemo3000._tcp", "local.", 42424, []string{"txtv=0", "lo=1", "la=2"}, nil)
+	server, err := zeroconf.Register("Wemo 3000 API", "_wemo3000._tcp", "local.", PORT, []string{"txtv=0", "lo=1", "la=2"}, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -39,6 +42,6 @@ func main() {
 	engine := gin.Default()
 	engine.GET("/ping", ping)
 	engine.GET("/shutdown", shutdown)
-	engine.Run(":2333")
+	engine.Run(fmt.Sprintf(":%d", PORT))
 	defer server.Shutdown()
 }
