@@ -1,36 +1,23 @@
 package com.woynert.wemo3000;
 
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.util.Date;
 
 public class RestClient {
-    Peer peer;
-
-    public static boolean ping (Peer peer) {
+    public static boolean ping (String address, int port, int timeout) {
         try {
-            URL url = new URL (String.format("http://%s:%d/ping", peer.ip, peer.port));
-            System.out.println(String.format("http://%s:%d/ping", peer.ip, peer.port));
+            URL url = new URL (String.format("http://%s:%d/ping", address, port));
+            //System.out.println(String.format("http://%s:%d/ping", address, port));
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setConnectTimeout(timeout);
             con.setRequestMethod("GET");
             con.setRequestProperty("Accept", "application/json");
 
             if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream(), "utf-8"));
-                StringBuilder response = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    response.append(line);
-                }
-                reader.close();
-
-                JSONObject res = new JSONObject(response.toString());
-                peer.hostname = res.get("hostname").toString();
-                peer.lastTimeActive = new Date();
                 return true;
             }
         } catch (Exception e) {
