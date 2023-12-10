@@ -28,7 +28,7 @@ public class RestClient {
             URL url = new URL (String.format("http://%s:%d/shutdown", address, port));
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setConnectTimeout(timeout);
-            con.setRequestMethod("GET");
+            con.setRequestMethod("DELETE");
             con.setRequestProperty("Accept", "application/json");
 
             if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {

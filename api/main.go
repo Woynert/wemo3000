@@ -23,6 +23,10 @@ func ping(ctx *gin.Context) {
 
 func shutdown(ctx *gin.Context) {
 	cmd := exec.Command("sh", "-c", "touch /tmp/wemo3000-`date +\"%T\"`")
+	if _, exists := os.LookupEnv("WEMO3000_RELEASE"); exists {
+		cmd = exec.Command("sh", "-c", "touch /tmp/---WEMO3000-`date +\"%T\"`")
+	}
+
 	err := cmd.Run()
 	if err != nil {
 		ctx.Status(http.StatusInternalServerError)
@@ -32,7 +36,7 @@ func shutdown(ctx *gin.Context) {
 
 func main() {
 	// mDNS
-	server, err := zeroconf.Register("Wemo 3000 API", "_wemo3000._tcp", "local.", PORT, []string{"txtv=0", "lo=1", "la=2"}, nil)
+	server, err := zeroconf.Register("Wemo 3000 API", "_wemo3000._tcp", "local.", PORT, nil, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -41,7 +45,7 @@ func main() {
 	// REST
 	engine := gin.Default()
 	engine.GET("/ping", ping)
-	engine.GET("/shutdown", shutdown)
+	engine.DELETE("/shutdown", shutdown)
 	engine.Run(fmt.Sprintf(":%d", PORT))
 	defer server.Shutdown()
 }
