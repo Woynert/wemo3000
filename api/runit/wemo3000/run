@@ -1,0 +1,5 @@
+#!/bin/sh
+export WEMO3000_RELEASE=1
+export GIN_MODE=release
+exec 2>&1
+exec wemo3000-server
