@@ -9,6 +9,7 @@ import java.util.Date;
 public class Controller {
     public Peer peer;
     private MdnsDiscovery discovery;
+    Handler handlerPingLoop;
 
     public void setup (View view) {
 
@@ -18,14 +19,16 @@ public class Controller {
             Log.d("TAG", "Peer Found " + peer.ip + " : " + peer.port);
         });
 
-        final Handler handler = new Handler();
+        handlerPingLoop = new Handler();
         final int delay = 2000;
 
         // ping loop
-        handler.postDelayed(new Runnable() {
+        handlerPingLoop.postDelayed(new Runnable() {
             public void run() {
                 servicePingLoop();
-                handler.postDelayed(this, delay);
+                if (handlerPingLoop != null) {
+                    handlerPingLoop.postDelayed(this, delay);
+                }
             }
         }, delay);
     }
@@ -47,6 +50,8 @@ public class Controller {
     }
 
     public void stop () {
+        handlerPingLoop.removeCallbacksAndMessages(null);
+        handlerPingLoop = null;
         discovery.stop();
     }
 }

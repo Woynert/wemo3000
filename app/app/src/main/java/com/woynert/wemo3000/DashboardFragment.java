@@ -2,6 +2,7 @@ package com.woynert.wemo3000;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -104,6 +105,7 @@ public class DashboardFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         controller.stop();
+        controller = null;
         binding = null;
     }
 }
