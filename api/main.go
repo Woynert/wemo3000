@@ -24,7 +24,7 @@ func ping(ctx *gin.Context) {
 func shutdown(ctx *gin.Context) {
 	cmd := exec.Command("sh", "-c", "touch /tmp/wemo3000-`date +\"%T\"`")
 	if _, exists := os.LookupEnv("WEMO3000_RELEASE"); exists {
-		cmd = exec.Command("sh", "-c", "touch /tmp/---WEMO3000-`date +\"%T\"`")
+		cmd = exec.Command("poweroff")
 	}
 
 	err := cmd.Run()
