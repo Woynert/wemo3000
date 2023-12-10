@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/MainFragment"
         android:name="com.woynert.wemo3000.DashboardFragment"
-        android:label="Wemo3000"
+        android:label="Wemo 3000 Remoto"
         tools:layout="@layout/fragment_dashboard">
 
         <action

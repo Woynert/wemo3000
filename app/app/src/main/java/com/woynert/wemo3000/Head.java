@@ -46,4 +46,8 @@ public class Head {
         });
         thread.start();
     }
+
+    public void stop () {
+        discovery.stop();
+    }
 }

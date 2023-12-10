@@ -62,6 +62,8 @@ public class DashboardFragment extends Fragment {
                 handler.postDelayed(this, delay);
             }
         }, delay);
+
+        updateView();
     }
 
     private void updateViewLoop () {
@@ -101,6 +103,7 @@ public class DashboardFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        logic.stop();
         binding = null;
     }
 }

@@ -27,6 +27,10 @@ public class MDNSDiscovery {
         void onCallback(Peer peer);
     }
 
+    public void stop () {
+        browseService.stop();
+    }
+
     public void startDiscovery (View view, PeerUpdateCallback callback) {
         Log.d("MDNS", "Starting discovery");
         peerUpdateCallback = callback;
