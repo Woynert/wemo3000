@@ -16,7 +16,7 @@ import com.woynert.wemo3000.databinding.FragmentDashboardBinding;
 public class DashboardFragment extends Fragment {
 
     private FragmentDashboardBinding binding;
-    private Head logic;
+    private Controller controller;
     private int visualLoadingCycle = 0;
 
     @Override
@@ -36,10 +36,10 @@ public class DashboardFragment extends Fragment {
         binding.buttonSecond.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (logic.peer == null) return;
+                if (controller.peer == null) return;
                 new Thread(() -> {
                     String toastMsg = "✅️️️ Señal de apagado enviada.";
-                    if (!RestClient.shutdown(logic.peer.ip, logic.peer.port, 5000)) {
+                    if (!RestClient.shutdown(controller.peer.ip, controller.peer.port, 5000)) {
                         toastMsg = "❌️ Hubo un error al enviar la señal.";
                     }
                     Snackbar.make(view, toastMsg, Snackbar.LENGTH_LONG)
@@ -49,8 +49,8 @@ public class DashboardFragment extends Fragment {
         });
 
         // init app logic
-        logic = new Head();
-        logic.setup(view);
+        controller = new Controller();
+        controller.setup(view);
 
         // view update loop
         final Handler handler = new Handler();
@@ -82,14 +82,14 @@ public class DashboardFragment extends Fragment {
         visualLoadingCycle = visualLoadingCycle % 4;
         binding.textViewSearchingDevices.setText(getString(R.string.searching_devices_label, dotsText.toString()));
 
-        if (logic.peer == null) return;
+        if (controller.peer == null) return;
         else if (binding.viewPeerCard.getVisibility() == View.GONE) {
             binding.viewPeerCard.setVisibility(View.VISIBLE);
         }
 
-        binding.textViewPeerHostname.setText(logic.peer.hostname);
-        binding.textViewPeerAddress.setText(logic.peer.ip + ":" + logic.peer.port);
-        long seconds = (System.currentTimeMillis() - logic.peer.lastTimeActive.getTime()) / 1000;
+        binding.textViewPeerHostname.setText(controller.peer.hostname);
+        binding.textViewPeerAddress.setText(controller.peer.ip + ":" + controller.peer.port);
+        long seconds = (System.currentTimeMillis() - controller.peer.lastTimeActive.getTime()) / 1000;
         binding.textViewPeerLastTime.setText(String.format("Activo hace %d segundos", seconds));
 
         if (seconds < 12) {
@@ -103,7 +103,7 @@ public class DashboardFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        logic.stop();
+        controller.stop();
         binding = null;
     }
 }

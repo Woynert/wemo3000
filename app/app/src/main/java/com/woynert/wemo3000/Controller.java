@@ -3,17 +3,16 @@ package com.woynert.wemo3000;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import java.util.Date;
 
-public class Head {
+public class Controller {
     public Peer peer;
-    private MDNSDiscovery discovery;
+    private MdnsDiscovery discovery;
 
     public void setup (View view) {
 
-        discovery = new MDNSDiscovery();
+        discovery = new MdnsDiscovery();
         discovery.startDiscovery(view, (Peer peer) -> {
             this.peer = peer;
             Log.d("TAG", "Peer Found " + peer.ip + " : " + peer.port);

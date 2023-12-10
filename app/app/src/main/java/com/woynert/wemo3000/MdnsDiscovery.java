@@ -6,7 +6,6 @@ import android.view.View;
 import com.github.druk.dnssd.BrowseListener;
 import com.github.druk.dnssd.DNSSD;
 import com.github.druk.dnssd.DNSSDBindable;
-import com.github.druk.dnssd.DNSSDEmbedded;
 import com.github.druk.dnssd.DNSSDException;
 import com.github.druk.dnssd.DNSSDService;
 import com.github.druk.dnssd.NSType;
@@ -17,7 +16,7 @@ import java.net.InetAddress;
 import java.util.Date;
 import java.util.Map;
 
-public class MDNSDiscovery {
+public class MdnsDiscovery {
 
     private DNSSD dnssd;
     private DNSSDService browseService;
