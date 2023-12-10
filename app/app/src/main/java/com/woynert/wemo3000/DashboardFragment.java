@@ -1,10 +1,7 @@
 package com.woynert.wemo3000;
 
-import static androidx.appcompat.widget.TintTypedArray.obtainStyledAttributes;
-
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,8 +9,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.fragment.NavHostFragment;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.woynert.wemo3000.databinding.FragmentDashboardBinding;
 
 public class DashboardFragment extends Fragment {
@@ -39,9 +36,15 @@ public class DashboardFragment extends Fragment {
         binding.buttonSecond.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                NavHostFragment.findNavController(DashboardFragment.this)
-                        .navigate(R.id.action_SecondFragment_to_FirstFragment);
-                Log.d("TAG", "click");
+                if (logic.peer == null) return;
+                new Thread(() -> {
+                    String toastMsg = "✅️️️ Señal de apagado enviada.";
+                    if (!RestClient.shutdown(logic.peer.ip, logic.peer.port, 5000)) {
+                        toastMsg = "❌️ Hubo un error al enviar la señal.";
+                    }
+                    Snackbar.make(view, toastMsg, Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+                }).start();
             }
         });
 
