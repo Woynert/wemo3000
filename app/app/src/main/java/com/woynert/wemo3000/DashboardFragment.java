@@ -14,6 +14,10 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.snackbar.Snackbar;
 import com.woynert.wemo3000.databinding.FragmentDashboardBinding;
 
+import java.time.chrono.ChronoLocalDateTime;
+import java.util.Calendar;
+import java.util.Date;
+
 public class DashboardFragment extends Fragment {
 
     private FragmentDashboardBinding binding;
@@ -38,6 +42,13 @@ public class DashboardFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (controller.peer == null) return;
+                int currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+                if (currentHour < (12 + 9)) { // TODO: Make minimum hour dynamic
+                    Snackbar.make(view, "ℹ️ Espera hasta después de las 9:00 PM.", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+                    return;
+                }
+
                 new Thread(() -> {
                     String toastMsg = "✅️️️ Señal de apagado enviada.";
                     if (!RestClient.shutdown(controller.peer.ip, controller.peer.port, 5000)) {
