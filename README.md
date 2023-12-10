@@ -1,26 +1,34 @@
-## Wemo 3000
+# Wemo 3000
 
-Remote computer shutdown service for linux with focus on good UX.
+Remote computer shutdown service for Linux and Android with focus on good UX.
 
-### Wemo 3000 Android
+## APP
 
 Simple Android application with a DNSSD client ([RxDNSSD](https://github.com/andriydruk/RxDNSSD)) to discover Wemo 3000 server instances to then consume the API through HTTP requests.
 
-### Wemo 3000 Server
-
-It has a REST API ([Gin Web Framework](https://github.com/gin-gonic/gin)) to shutdown the computer remotely and features a mDNS ([ZeroConf](https://github.com/grandcat/zeroconf)) server to advertise the REST API service to any client through all network interfaces.
-
-Build:
+Build. Artifacts should appear in `app/app/build/outputs/apk/`:
 
 ```
-cd ./api
+cd app
+./gradlew assembleDebug
+./gradlew assembleRelease
+```
+
+## Server
+
+REST API ([Gin Web Framework](https://github.com/gin-gonic/gin)) to shutdown the computer remotely. It features a mDNS ([ZeroConf](https://github.com/grandcat/zeroconf)) server to advertise itself to any client through all network interfaces.
+
+Build and run release:
+
+```
+cd api
 make build
-```
-
-Run release:
-
-```
 WEMO3000_RELEASE=1 GIN_MODE=release wemo3000-server
 ```
 
-> Note: `WEMO3000_RELEASE` must be set for the service to actually perform the shutdown functionality.
+`WEMO3000_RELEASE` must be set for the service to actually perform the shutdown functionality. See sample service at [/api/runit/wemo3000/run](/api/runit/wemo3000/run).
+
+## Future work
+
+- Implement a relay server so clients can reach through the internet.
+- The ability for the app to detect multiple peers at once.
