@@ -2,50 +2,78 @@ package main
 
 import (
 	"fmt"
-	"net/http"
-	"os"
-	"os/exec"
+	"log"
+	"sync/atomic"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/grandcat/zeroconf"
 )
 
 const PORT = 2333
+const ADDR_CHECK_DELAY = 1 * time.Second
+const MDNS_REFRESH_DELAY = 15 * time.Second
 
-func ping(ctx *gin.Context) {
-	ctx.Status(http.StatusOK)
-	hostname, err := os.Hostname()
-	if err != nil {
-		ctx.Status(http.StatusInternalServerError)
-	}
-	ctx.JSON(http.StatusOK, gin.H{"hostname": hostname})
-}
-
-func shutdown(ctx *gin.Context) {
-	cmd := exec.Command("sh", "-c", "touch /tmp/wemo3000-`date +\"%T\"`")
-	if _, exists := os.LookupEnv("WEMO3000_RELEASE"); exists {
-		cmd = exec.Command("poweroff")
-	}
-
-	err := cmd.Run()
-	if err != nil {
-		ctx.Status(http.StatusInternalServerError)
-	}
-	ctx.Status(http.StatusOK)
+func setupMDNS() (*zeroconf.Server, error) {
+	serverZero, err := zeroconf.Register("Wemo 3000 API", "_wemo3000._tcp", "local.", PORT, nil, nil)
+	return serverZero, err
 }
 
 func main() {
+
 	// mDNS
-	server, err := zeroconf.Register("Wemo 3000 API", "_wemo3000._tcp", "local.", PORT, nil, nil)
+
+	serverZero, err := setupMDNS()
 	if err != nil {
 		panic(err)
 	}
-	defer server.Shutdown()
+
+	// refresh if any ip changes
+
+	l, err := ListenNetlink()
+	if err != nil {
+		panic(err)
+	}
+
+	var needsRefresh int32
+	atomic.StoreInt32(&needsRefresh, 0)
+
+	go func() {
+		for {
+			msgs, err := l.ReadMsgs()
+			if err != nil {
+				log.Printf("Could not read netlink: %s\n", err)
+			}
+			for _, m := range msgs {
+				if IsNewAddr(&m) {
+					atomic.StoreInt32(&needsRefresh, 1)
+				}
+			}
+			time.Sleep(ADDR_CHECK_DELAY)
+		}
+	}()
+
+	go func() {
+		for {
+			if atomic.LoadInt32(&needsRefresh) == 1 {
+				atomic.StoreInt32(&needsRefresh, 0)
+
+				log.Printf("Updating mDNS\n")
+				serverZero.Shutdown()
+				serverZero, err = setupMDNS()
+				if err != nil {
+					panic(err)
+				}
+			}
+			time.Sleep(MDNS_REFRESH_DELAY)
+		}
+	}()
 
 	// REST
+
 	engine := gin.Default()
 	engine.GET("/ping", ping)
 	engine.DELETE("/shutdown", shutdown)
 	engine.Run(fmt.Sprintf(":%d", PORT))
-	defer server.Shutdown()
+	defer serverZero.Shutdown()
 }
