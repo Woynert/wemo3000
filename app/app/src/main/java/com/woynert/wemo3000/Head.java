@@ -1,34 +1,30 @@
 package com.woynert.wemo3000;
 
-import android.app.Activity;
-import android.content.Context;
-import android.net.wifi.WifiManager;
 import android.os.Handler;
+import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 public class Head {
-    private String name = "ewa";
-    private Peer peer;
+    public Peer peer;
     private MDNSDiscovery discovery;
 
-    public void setup (Activity activity) {
+    public void setup (View view) {
         discovery = new MDNSDiscovery();
 
-        // TODO: wrap in try catch
-
         Thread thread = new Thread(() -> {
-            discovery.startDiscovery(activity);
+            discovery.startDiscovery(view, (Peer peer) -> {
+                this.peer = peer;
+                Toast.makeText(view.getContext(), "Peer Found " + peer.ip + " : " + peer.port, Toast.LENGTH_LONG).show();
+                Log.d("TAG", "Peer Found " + peer.ip + " : " + peer.port);
+            });
         });
         thread.start();
 
-        // dummy peer
-        peer = new Peer();
-        peer.ip = "10.42.0.1";
-        peer.port = 2333;
-
-        // start loop
         final Handler handler = new Handler();
         final int delay = 10000;
 
+        // ping loop
         handler.postDelayed(new Runnable() {
             public void run() {
                 loop();
@@ -38,15 +34,11 @@ public class Head {
     }
 
     public void loop () {
-        System.out.println(name);
         Thread thread = new Thread(() -> {
-            // ping peer
+            // TODO: ping service
             //RestClient.ping(peer);
-            //System.out.println(peer.lastTimeActive);
-
             //MDNSDiscovery.start();
         });
         thread.start();
     }
-
 }

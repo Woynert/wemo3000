@@ -7,9 +7,9 @@
 
     <fragment
         android:id="@+id/MainFragment"
-        android:name="com.woynert.wemo3000.MainFragment"
+        android:name="com.woynert.wemo3000.DashboardFragment"
         android:label="Wemo3000"
-        tools:layout="@layout/fragment_main">
+        tools:layout="@layout/fragment_dashboard">
 
         <action
             android:id="@+id/action_SecondFragment_to_FirstFragment"

@@ -1,10 +1,8 @@
 package com.woynert.wemo3000;
 
-import android.app.Activity;
 import android.util.Log;
-import android.widget.Toast;
+import android.view.View;
 
-import com.google.android.material.snackbar.Snackbar;
 import com.github.druk.dnssd.BrowseListener;
 import com.github.druk.dnssd.DNSSD;
 import com.github.druk.dnssd.DNSSDBindable;
@@ -14,35 +12,26 @@ import com.github.druk.dnssd.NSType;
 import com.github.druk.dnssd.QueryListener;
 import com.github.druk.dnssd.ResolveListener;
 
-import java.io.IOException;
 import java.net.InetAddress;
-import java.net.InterfaceAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.Enumeration;
+import java.util.Date;
 import java.util.Map;
 
 public class MDNSDiscovery {
 
     private DNSSD dnssd;
-    private String addressFound; // TODO: Use a list or collection of Peers
     private PeerUpdateCallback peerUpdateCallback;
 
-    private interface PeerUpdateCallback {
-        void onCallback();
+    public interface PeerUpdateCallback {
+        void onCallback(Peer peer);
     }
 
-    public void startDiscovery (Activity activity) {
-        System.out.println("listening I guess1");
+    public void startDiscovery (View view, PeerUpdateCallback callback) {
+        Log.d("MDNS", "Starting discovery");
 
-        peerUpdateCallback = () -> {
-            Toast.makeText(activity, "Found " + addressFound, Toast.LENGTH_LONG).show();
-            System.out.println("Found " + addressFound);
-        };
+        peerUpdateCallback = callback;
 
         try {
-            dnssd = new DNSSDBindable(activity);
+            dnssd = new DNSSDBindable(view.getContext());
             DNSSDService browseService = dnssd.browse("_wemo3000._tcp", new Listener());
         } catch (DNSSDException e) {
             Log.e("TAG", "error", e);
@@ -72,7 +61,7 @@ public class MDNSDiscovery {
             dnssd.resolve(flags, ifIndex, serviceName, regType, domain, new ResolveListener() {
                 @Override
                 public void serviceResolved(DNSSDService resolver, int flags, int ifIndex, String fullName, String hostName, int port, Map<String, String> txtRecord) {
-                    Log.d("TAG", "Resolved " + flags + " " + ifIndex + " " + hostName + " " + port + "\n" + txtRecord);
+                    Log.d("MDNS", "Resolved " + flags + " " + ifIndex + " " + hostName + " " + port + "\n" + txtRecord);
 
                     startQueryRecords(ifIndex, serviceName, regType, domain, hostName, port, txtRecord);
                 }
@@ -119,7 +108,6 @@ public class MDNSDiscovery {
 
                         try {
                             InetAddress address = InetAddress.getByAddress(rdata);
-                            Log.d("TAG", address.getHostAddress() + " " + ifIndex + " " + fullName);
 
                             PingRunnable runnable = new PingRunnable(address.getHostAddress(), port);
                             Thread thread = new Thread(runnable);
@@ -128,25 +116,28 @@ public class MDNSDiscovery {
                             boolean reachable = runnable.getResult();
 
                             if (reachable) {
-                                Log.d("TAG", "reachable " + address.getHostAddress() + " " + ifIndex + " " + fullName);
-                                addressFound = address.getHostAddress();
-                                peerUpdateCallback.onCallback();
+                                Log.d("MDNS", "reachable " + address.getHostAddress() + " " + ifIndex + " " + fullName);
+
+                                Peer peer = new Peer();
+                                peer.hostname = hostName;
+                                peer.port = port;
+                                peer.ip = address.getHostAddress();
+                                peer.lastTimeActive = new Date();
+                                peerUpdateCallback.onCallback(peer);
+                                Log.d("TAG","yes");
                             }
                             else {
-                                Log.d("TAG", "NOT reachable " + address.getHostAddress() + " " + ifIndex + " " + fullName);
+                                Log.d("MDNS", "NOT reachable " + address.getHostAddress() + " " + ifIndex + " " + fullName);
                             }
                         } catch (Exception e) {
-                            System.out.println(e);
+                            Log.e("MDNS", e.getMessage());
                         }
-
-
                 }
 
                 @Override
                 public void operationFailed(DNSSDService service, int errorCode) {
-                    Log.d("TAG", "Unable to find the address : " + errorCode);
+                    Log.d("MDNS", "Unable to find the address : " + errorCode);
                 }
-
             };
 
             dnssd.queryRecord(0, 0, hostName, NSType.A, 1, listener);
@@ -154,23 +145,5 @@ public class MDNSDiscovery {
         } catch (DNSSDException e) {
             e.printStackTrace();
         }
-    }
-
-    private static InetAddress getDeviceIpAddress() throws SocketException {
-        Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
-
-        while (networkInterfaces.hasMoreElements()) {
-            NetworkInterface networkInterface = networkInterfaces.nextElement();
-            if (!networkInterface.isLoopback() && networkInterface.isUp()) {
-                for (InterfaceAddress interfaceAddress : networkInterface.getInterfaceAddresses()) {
-                    InetAddress address = interfaceAddress.getAddress();
-                    if (address != null && !address.isLoopbackAddress()) {
-                        return address;
-                    }
-                }
-            }
-        }
-
-        return null;
     }
 }

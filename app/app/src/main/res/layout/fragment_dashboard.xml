@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainFragment">
+    tools:context=".DashboardFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -47,22 +47,22 @@
                         android:orientation="vertical">
 
                         <TextView
-                            android:id="@+id/textView4"
+                            android:id="@+id/textView_peer_hostname"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="woydesktop" />
+                            android:text="hostname" />
 
                         <TextView
-                            android:id="@+id/textView3"
+                            android:id="@+id/textView_peer_address"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="192.168.1.11" />
+                            android:text="192.168.1.1" />
 
                         <TextView
-                            android:id="@+id/textView2"
+                            android:id="@+id/textView_peer_lastTime"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Activo hace 5 segundos" />
+                            android:text="Activo hace X segundos" />
 
                     </LinearLayout>
 
