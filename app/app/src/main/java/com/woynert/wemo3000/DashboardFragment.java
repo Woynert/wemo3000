@@ -20,6 +20,7 @@ public class DashboardFragment extends Fragment {
 
     private FragmentDashboardBinding binding;
     private Head logic;
+    private int visualLoadingCycle = 0;
 
     @Override
     public View onCreateView(
@@ -27,6 +28,8 @@ public class DashboardFragment extends Fragment {
             Bundle savedInstanceState
     ) {
         binding = FragmentDashboardBinding.inflate(inflater, container, false);
+        binding.viewPeerCard.setVisibility(View.GONE);
+
         return binding.getRoot();
     }
 
@@ -48,7 +51,7 @@ public class DashboardFragment extends Fragment {
 
         // view update loop
         final Handler handler = new Handler();
-        final int delay = 2000;
+        final int delay = 1500;
 
         handler.postDelayed(new Runnable() {
             public void run() {
@@ -64,7 +67,20 @@ public class DashboardFragment extends Fragment {
 
     private void updateView () {
         if (binding == null) return;
+
+        // "..." dots loading animation cycle
+        StringBuilder dotsText = new StringBuilder("");
+        for (int i = 0; i < visualLoadingCycle; i++) {
+            dotsText.append(".");
+        }
+        visualLoadingCycle++;
+        visualLoadingCycle = visualLoadingCycle % 4;
+        binding.textViewSearchingDevices.setText(getString(R.string.searching_devices_label, dotsText.toString()));
+
         if (logic.peer == null) return;
+        else if (binding.viewPeerCard.getVisibility() == View.GONE) {
+            binding.viewPeerCard.setVisibility(View.VISIBLE);
+        }
 
         binding.textViewPeerHostname.setText(logic.peer.hostname);
         binding.textViewPeerAddress.setText(logic.peer.ip + ":" + logic.peer.port);
