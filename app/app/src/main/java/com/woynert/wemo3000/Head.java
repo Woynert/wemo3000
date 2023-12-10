@@ -5,6 +5,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import java.util.Date;
+
 public class Head {
     public Peer peer;
     private MDNSDiscovery discovery;
@@ -22,22 +24,28 @@ public class Head {
         thread.start();
 
         final Handler handler = new Handler();
-        final int delay = 10000;
+        final int delay = 2000;
 
         // ping loop
         handler.postDelayed(new Runnable() {
             public void run() {
-                loop();
+                servicePingLoog();
                 handler.postDelayed(this, delay);
             }
         }, delay);
     }
 
-    public void loop () {
+    public void servicePingLoog () {
         Thread thread = new Thread(() -> {
+            if (peer == null) return;
+
             // TODO: ping service
-            //RestClient.ping(peer);
-            //MDNSDiscovery.start();
+            boolean res = RestClient.ping(peer.ip, peer.port, 2000);
+            if (res) {
+                peer.lastTimeActive = new Date();
+            }
+
+            // TODO: delete after too much time has passed without an answer
         });
         thread.start();
     }
