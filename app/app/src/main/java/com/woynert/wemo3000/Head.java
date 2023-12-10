@@ -12,16 +12,12 @@ public class Head {
     private MDNSDiscovery discovery;
 
     public void setup (View view) {
-        discovery = new MDNSDiscovery();
 
-        Thread thread = new Thread(() -> {
-            discovery.startDiscovery(view, (Peer peer) -> {
-                this.peer = peer;
-                Toast.makeText(view.getContext(), "Peer Found " + peer.ip + " : " + peer.port, Toast.LENGTH_LONG).show();
-                Log.d("TAG", "Peer Found " + peer.ip + " : " + peer.port);
-            });
+        discovery = new MDNSDiscovery();
+        discovery.startDiscovery(view, (Peer peer) -> {
+            this.peer = peer;
+            Log.d("TAG", "Peer Found " + peer.ip + " : " + peer.port);
         });
-        thread.start();
 
         final Handler handler = new Handler();
         final int delay = 2000;
@@ -29,13 +25,13 @@ public class Head {
         // ping loop
         handler.postDelayed(new Runnable() {
             public void run() {
-                servicePingLoog();
+                servicePingLoop();
                 handler.postDelayed(this, delay);
             }
         }, delay);
     }
 
-    public void servicePingLoog () {
+    public void servicePingLoop () {
         Thread thread = new Thread(() -> {
             if (peer == null) return;
 
