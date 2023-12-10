@@ -1,5 +1,7 @@
 package com.woynert.wemo3000;
 
+import static androidx.appcompat.widget.TintTypedArray.obtainStyledAttributes;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -8,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -60,15 +63,20 @@ public class DashboardFragment extends Fragment {
     }
 
     private void updateView () {
-        if (logic.peer == null) {
-            // TODO: hide card
-            return;
-        }
+        if (binding == null) return;
+        if (logic.peer == null) return;
 
         binding.textViewPeerHostname.setText(logic.peer.hostname);
         binding.textViewPeerAddress.setText(logic.peer.ip + ":" + logic.peer.port);
         long seconds = (System.currentTimeMillis() - logic.peer.lastTimeActive.getTime()) / 1000;
         binding.textViewPeerLastTime.setText(String.format("Activo hace %d segundos", seconds));
+
+        if (seconds < 12) {
+            binding.textViewPeerLastTime.setTextColor(ContextCompat.getColor(this.getContext(), com.google.android.material.R.color.design_default_color_secondary));
+        }
+        else{
+            binding.textViewPeerLastTime.setTextColor(ContextCompat.getColor(this.getContext(), com.google.android.material.R.color.design_error));
+        }
     }
 
     @Override

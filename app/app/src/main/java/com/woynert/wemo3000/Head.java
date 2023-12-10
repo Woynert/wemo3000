@@ -42,6 +42,7 @@ public class Head {
             }
 
             // TODO: delete after too much time has passed without an answer
+            // then start MDNS discovery again
         });
         thread.start();
     }

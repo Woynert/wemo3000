@@ -17,7 +17,8 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:visibility="visible">
 
             <FrameLayout
                 android:layout_width="match_parent"
@@ -62,7 +63,8 @@
                             android:id="@+id/textView_peer_lastTime"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Activo hace X segundos" />
+                            android:text="Activo hace X segundos"
+                            android:textColor="@color/design_default_color_secondary" />
 
                     </LinearLayout>
 
